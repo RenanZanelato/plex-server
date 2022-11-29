@@ -1,0 +1,57 @@
+version: '3'
+
+services:
+  # media server
+  plex:
+    image: linuxserver/plex
+    volumes:
+      - "./plex/config:/config"
+      - "${VOL_SERIES}:/data/series"
+      - "${VOL_MOVIES}:/data/movies"
+      - "${VOL_OTHER}:/data/other"
+      - "${VOL_PHOTOS}:/data/photos"
+      - "./plex/transcode:/transcode"
+      - "/etc/localtime:/etc/localtime:ro"
+    network_mode: "host"
+    restart: "unless-stopped"
+  # torrent downloader
+  transmission:
+    image: linuxserver/transmission
+    volumes:
+      - "./transmission/config:/config"
+      - "./transmission/watch:/watch"
+      - "${VOL_DOWNLOAD}:/downloads"
+      - "${VOL_MOVIES}:/downloads/movies"
+      - "${VOL_SERIES}:/downloads/series"
+      - "${VOL_OTHER}:/downloads/other"
+      - "/etc/localtime:/etc/localtime:ro"
+#    ports:
+#      - "51413:51413"
+#      - "51413:51413/udp"
+#      - "9091:9091"
+    network_mode: "host"
+    restart: "unless-stopped"
+  # movie search
+  radarr:
+    image: linuxserver/radarr
+    volumes:
+      - "${VOL_DOWNLOAD}:/downloads"
+      - "${VOL_MOVIES}:/downloads/movies"
+      - "./radarr/movies:/movies"
+      - "./radarr/config:/config"
+      - "/etc/localtime:/etc/localtime:ro"
+    ports:
+      - "7878:7878"
+    restart: "unless-stopped"
+  # tv series search
+  sonarr:
+    image: linuxserver/sonarr
+    volumes:
+      - "${VOL_DOWNLOAD}:/downloads"
+      - "${VOL_SERIES}:/downloads/series"
+      - "./sonarr/series:/tv"
+      - "./sonarr/config:/config"
+      - "/etc/localtime:/etc/localtime:ro"
+    ports:
+      - "8989:8989"
+    restart: "unless-stopped"
